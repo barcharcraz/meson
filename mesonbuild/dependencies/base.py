@@ -276,6 +276,8 @@ class PkgConfigDependency(ExternalDependency):
             raise DependencyException('Could not generate libs for %s:\n\n%s' %
                                       (self.name, out))
         self.link_args = []
+        if self.static:
+            self.link_args.append("-Wl,-Bstatic")
         for lib in out.split():
             if lib.endswith(".la"):
                 shared_libname = self.extract_libtool_shlib(lib)
@@ -290,6 +292,8 @@ class PkgConfigDependency(ExternalDependency):
                 lib = shared_lib
                 self.is_libtool = True
             self.link_args.append(lib)
+        if self.static:
+            self.link_args.append("-Wl,-Bdynamic")
 
     def get_pkgconfig_variable(self, variable_name):
         ret, out = self._call_pkgbin(['--variable=' + variable_name, self.name])
